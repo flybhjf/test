@@ -1,0 +1,12 @@
+mysql:
+  username: root
+  password: root
+  host: 127.0.0.1
+  port: 3306
+  dbname: testProject
+
+redis:
+  host: your_redis_host
+  port: your_redis_port
+  password: your_redis_password
+  db: your_redis_db_number
