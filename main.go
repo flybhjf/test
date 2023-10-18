@@ -7,5 +7,5 @@ import (
 
 func main() {
 	config.Connect() //初始化MySQL Redis
-	router.Router()
+	router.Router()  //初始化gin路由
 }
