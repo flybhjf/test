@@ -54,6 +54,9 @@ func Connect() {
 	if err != nil {
 		log.Fatalf("Failed to connect to MySQL: %v", err)
 	}
+
+	// 自动迁移（创建表）
+	// DB.AutoMigrate(&models.User{})
 	// Redis Connection
 	redisAddr := fmt.Sprintf("%s:%s", config.Redis.Host, config.Redis.Port)
 	RedisPool = newRedisPool(redisAddr, config.Redis.Password)

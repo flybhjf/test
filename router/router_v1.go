@@ -12,8 +12,7 @@ func Router() {
 	v1 := router.Group("/v1")
 	{
 		v1.POST("/register", hander.RegisterUser)
-		v1.POST("/submit")
-		v1.POST("/read")
+		v1.POST("/login", hander.Login)
 	}
 	router.Run(":8080")
 }
