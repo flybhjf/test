@@ -100,6 +100,7 @@ func Login(c *gin.Context) {
 		c.JSON(http.StatusOK, response)
 		return
 	}
+
 	token := middleware.GenerateToken(int(user.ID), user.UserName)
 	response.Code = 200
 	response.Message = "登录成功"
@@ -111,7 +112,7 @@ func Login(c *gin.Context) {
 type ResetRequest struct {
 	UserName    string `json:"userName" binding:"required"`
 	PassWord    string `json:"passWord" binding:"required"`
-	NewPassword int    `json:"newPassword" binding:"required"`
+	NewPassWord string `json:"newPassWord" binding:"required"`
 }
 type ResetResponse struct {
 	Code    int    `json:"code"`
@@ -124,6 +125,18 @@ func ResetPassword(c *gin.Context) {
 	var request ResetRequest
 	c.ShouldBind(&request)
 	err := validateInput(request.UserName, request.PassWord, request.PassWord, "1111111@qq.com", "13914444444")
+	if request.PassWord == request.NewPassWord {
+		response.Code = 400
+		response.Message = "新密码不能和原密码一致"
+		c.JSON(http.StatusOK, response)
+		return
+	}
+	if len(request.NewPassWord) < 8 || !containsDigitAndLetter(request.NewPassWord) {
+		response.Code = 400
+		response.Message = "密码必须至少包含8位字符和数字"
+		c.JSON(http.StatusOK, response)
+		return
+	}
 	if err != nil {
 		response.Code = 400
 		response.Message = err.Error()
@@ -143,9 +156,16 @@ func ResetPassword(c *gin.Context) {
 		c.JSON(http.StatusOK, response)
 		return
 	}
-	dao.UpdatePassword(config.DB, request.NewPassword)
-	response.Code = 200
-	response.Message = "修改成功"
+	passwrod, _ := encryptPassword(request.NewPassWord, user.Salt)
+	err2 := dao.UpdatePassword(config.DB, passwrod, int(user.ID))
+	if err2 == nil {
+		response.Code = 200
+		response.Message = "修改成功"
+		c.JSON(http.StatusOK, response)
+		return
+	}
+	response.Code = 400
+	response.Message = err2.Error()
 	c.JSON(http.StatusOK, response)
 	return
 }
