@@ -108,6 +108,48 @@ func Login(c *gin.Context) {
 	return
 }
 
+type ResetRequest struct {
+	UserName    string `json:"userName" binding:"required"`
+	PassWord    string `json:"passWord" binding:"required"`
+	NewPassword int    `json:"newPassword" binding:"required"`
+}
+type ResetResponse struct {
+	Code    int    `json:"code"`
+	Message string `json:"message"`
+}
+
+// 修改密码
+func ResetPassword(c *gin.Context) {
+	var response ResetResponse
+	var request ResetRequest
+	c.ShouldBind(&request)
+	err := validateInput(request.UserName, request.PassWord, request.PassWord, "1111111@qq.com", "13914444444")
+	if err != nil {
+		response.Code = 400
+		response.Message = err.Error()
+		c.JSON(http.StatusUnprocessableEntity, response)
+		return
+	}
+	user, _ := dao.GetUserByUsername(config.DB, request.UserName)
+	if user == nil {
+		response.Code = 400
+		response.Message = "该用户不存在"
+		c.JSON(http.StatusOK, response)
+		return
+	}
+	if !verifyPassword(request.PassWord, user.Salt, user.PassWord) {
+		response.Code = 400
+		response.Message = "密码错误"
+		c.JSON(http.StatusOK, response)
+		return
+	}
+	dao.UpdatePassword(config.DB, request.NewPassword)
+	response.Code = 200
+	response.Message = "修改成功"
+	c.JSON(http.StatusOK, response)
+	return
+}
+
 // 验证输入参数合法性
 func validateInput(username, password, repassword, email, phone string) error {
 	// 验证用户名不为空

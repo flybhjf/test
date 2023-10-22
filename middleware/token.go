@@ -33,7 +33,7 @@ func GenerateToken(userID int, username string) string {
 func VerifyToken(tokenString string) (*Claims, error) {
 	// 解析 Token
 	token, err := jwt.ParseWithClaims(tokenString, &Claims{}, func(token *jwt.Token) (interface{}, error) {
-		return jwtKey, nil // 使用相同的密钥来验证 Token
+		return jwtKey, nil // 验证 Token
 	})
 
 	// 验证 Token 是否有效

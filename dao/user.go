@@ -21,3 +21,10 @@ func CreateUser(db *gorm.DB, user *models.User) error {
 	}
 	return nil
 }
+
+func UpdatePassword(db *gorm.DB, newPasswrod int) error {
+	if err := db.Update("password", newPasswrod).Error; err != nil {
+		return err
+	}
+	return nil
+}
